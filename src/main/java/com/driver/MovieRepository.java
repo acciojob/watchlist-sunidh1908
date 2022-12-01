@@ -4,10 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 @Component
@@ -80,11 +77,18 @@ public class MovieRepository {
     }
 
     public void deleteAllDirectors(){
-        listOfDirector.clear();
+        HashSet<String> moviesSet = new HashSet<String>();
 
-        for(String director : directorMovieList.keySet()){
-            directorMovieList.remove(director);
-            directorMovieList.remove(directorMovieList.get(director));
+        for(String director: directorMovieList.keySet()){
+            for(String movie: directorMovieList.get(director)){
+                moviesSet.add(movie);
+            }
+        }
+
+        for(String movie: moviesSet){
+            if(listOfMovies.containsKey(movie)){
+                listOfMovies.remove(movie);
+            }
         }
     }
 }
