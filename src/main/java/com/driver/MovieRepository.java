@@ -16,7 +16,7 @@ public class MovieRepository {
 
     Map<String,Movie> listOfMovies = new HashMap<>();
     Map<String,Director> listOfDirector = new HashMap<>();
-    Map<Movie,Director> directorMovieList = new HashMap<>();
+    Map<String,List<String>> directorMovieList = new HashMap<>();
 
     public void addMovie(Movie movie){
         listOfMovies.put(movie.getName(),movie);
@@ -27,14 +27,20 @@ public class MovieRepository {
     }
 
     public void addMovieDirectorPair(String movie,String director){
-        directorMovieList.put(listOfMovies.get(movie),listOfDirector.get(director));
+        if (listOfMovies.containsKey(movie) && listOfDirector.containsKey(director)) {
+            listOfMovies.put(movie, listOfMovies.get(movie));
+            listOfDirector.put(director, listOfDirector.get(director));
+            List<String> currMovies = new ArrayList<>();
+            if(directorMovieList.containsKey(director)){
+                currMovies = directorMovieList.get(director);
+            }
+            currMovies.add(movie);
+            directorMovieList.put(director,currMovies);
+        }
     }
 
     public Movie getMovieByName(String movieName){
-        for(Movie movie : listOfMovies.values()){
-            if(movie.getName().equals(movieName)) return movie;
-        }
-        return new Movie();
+        return listOfMovies.get(movieName);
     }
 
     public Director getDirectorByName(String directorName){
@@ -43,10 +49,8 @@ public class MovieRepository {
 
     public List<String> getMoviesByDirectorName(String directorName){
         List<String> moviesOfDirector = new ArrayList<>();
-        for(Movie movie : directorMovieList.keySet()){
-            if (directorMovieList.get(movie).getName().equals(directorName)){
-                moviesOfDirector.add(movie.getName());
-            }
+        if(directorMovieList.containsKey(directorName)){
+            moviesOfDirector = directorMovieList.get(directorName);
         }
         return moviesOfDirector;
     }
@@ -60,24 +64,27 @@ public class MovieRepository {
     }
 
     public void deleteDirectorByName(String directorName){
-        for(Movie movie : directorMovieList.keySet()){
-            if(directorMovieList.get(movie).getName().equals(directorName)){
-                directorMovieList.remove(movie);
-                listOfMovies.remove(movie.getName());
-            }
+        List<String> directors = new ArrayList<>();
+        if(listOfDirector.containsKey(directorName)){
+            listOfDirector.remove(directorName);
         }
-
-        for(String director : listOfDirector.keySet()){
-            if(director.equals(directorName)){
-                listOfDirector.remove(director);
+        if(directorMovieList.containsKey(directorName)){
+            directors = directorMovieList.get(directorName);
+            for(String movie : directors){
+                if(listOfMovies.containsKey(movie)){
+                    listOfMovies.remove(movie);
+                }
             }
+            directorMovieList.remove(directorName);
         }
     }
 
     public void deleteAllDirectors(){
-        for(Movie movie : directorMovieList.keySet()){
-            directorMovieList.remove(movie.getName());
-        }
         listOfDirector.clear();
+
+        for(String director : directorMovieList.keySet()){
+            directorMovieList.remove(director);
+            directorMovieList.remove(directorMovieList.get(director));
+        }
     }
 }
